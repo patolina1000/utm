@@ -53,7 +53,7 @@ class WebhookHandler {
             const response = await fetch(`${UTMIFY_CONFIG.BASE_URL}${UTMIFY_CONFIG.ENDPOINTS.orders}`, {
                 method: 'POST',
                 headers: {
-                    'Authorization': `Bearer ${UTMIFY_CONFIG.API_KEY}`,
+                    'x-api-token': UTMIFY_CONFIG.API_KEY,
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(utmifyData)
