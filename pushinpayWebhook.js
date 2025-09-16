@@ -33,6 +33,7 @@ class PushinPayWebhookHandler {
                 status: 'paid', // UTMify espera: waiting_payment, paid, refused, refunded, chargedback
                 createdAt: new Date().toISOString(),
                 approvedDate: new Date().toISOString(),
+                platform: 'PushinPay',
                 customer: {
                     name: orderData.payer_name || 'Cliente Teste',
                     email: orderData.payer_email || 'teste@exemplo.com',
@@ -52,6 +53,9 @@ class PushinPayWebhookHandler {
                     userCommissionInCents: Math.round((orderData.value || 1990) * 0.95) // 95% para usuário
                 },
                 product: {
+                    id: 'prod_pushinpay_001',
+                    planId: 'plan_pushinpay_001',
+                    planName: 'Produto PushinPay',
                     name: 'Produto PushinPay',
                     priceInCents: orderData.value || 1990,
                     quantity: 1

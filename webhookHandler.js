@@ -36,6 +36,7 @@ class WebhookHandler {
                 status: 'paid', // UTMify espera: waiting_payment, paid, refused, refunded, chargedback
                 createdAt: orderData.createdAt || new Date().toISOString(),
                 approvedDate: orderData.approvedDate || new Date().toISOString(),
+                platform: orderData.platform || 'SyncPay',
                 customer: {
                     name: orderData.customer?.name || 'Cliente Teste',
                     email: orderData.customer?.email || 'teste@exemplo.com',
@@ -55,6 +56,9 @@ class WebhookHandler {
                     userCommissionInCents: Math.round((orderData.products?.[0]?.priceInCents || 1990) * 0.95) // 95% para usuário
                 },
                 product: {
+                    id: orderData.products?.[0]?.id || 'prod_assinatura_mensal',
+                    planId: orderData.products?.[0]?.planId || 'plan_mensal_001',
+                    planName: orderData.products?.[0]?.planName || 'Assinatura Mensal',
                     name: orderData.products?.[0]?.name || 'Assinatura Mensal',
                     priceInCents: orderData.products?.[0]?.priceInCents || 1990,
                     quantity: 1
