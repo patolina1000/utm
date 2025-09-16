@@ -29,23 +29,36 @@ class WebhookHandler {
         try {
             console.log('📤 Enviando dados para UTMify...');
             
-            // Preparar dados para UTMify
+            // Preparar dados para UTMify conforme schema da API
             const utmifyData = {
-                order_id: orderData.id || orderData.orderId,
-                customer_email: orderData.customer?.email,
-                customer_name: orderData.customer?.name,
-                customer_phone: orderData.customer?.phone,
-                product_name: orderData.products?.[0]?.name || 'Produto',
-                product_price: orderData.products?.[0]?.priceInCents ? 
-                    (orderData.products[0].priceInCents / 100) : 0,
-                platform: orderData.platform || 'SyncPay',
-                utm_source: orderData.trackingParameters?.utm_source,
-                utm_medium: orderData.trackingParameters?.utm_medium,
-                utm_campaign: orderData.trackingParameters?.utm_campaign,
-                utm_content: orderData.trackingParameters?.utm_content,
-                utm_term: orderData.trackingParameters?.utm_term,
-                approved_at: orderData.approvedDate || new Date().toISOString(),
-                status: 'approved'
+                orderId: orderData.id || orderData.orderId || 'TEST-' + Date.now(),
+                paymentMethod: orderData.paymentMethod || 'pix',
+                status: 'paid', // UTMify espera: waiting_payment, paid, refused, refunded, chargedback
+                createdAt: orderData.createdAt || new Date().toISOString(),
+                approvedDate: orderData.approvedDate || new Date().toISOString(),
+                customer: {
+                    name: orderData.customer?.name || 'Cliente Teste',
+                    email: orderData.customer?.email || 'teste@exemplo.com',
+                    phone: orderData.customer?.phone || '11999999999',
+                    document: orderData.customer?.document || null
+                },
+                trackingParameters: {
+                    utm_campaign: orderData.trackingParameters?.utm_campaign || null,
+                    utm_content: orderData.trackingParameters?.utm_content || null,
+                    utm_medium: orderData.trackingParameters?.utm_medium || null,
+                    utm_source: orderData.trackingParameters?.utm_source || null,
+                    utm_term: orderData.trackingParameters?.utm_term || null
+                },
+                commission: {
+                    totalPriceInCents: orderData.products?.[0]?.priceInCents || 1990,
+                    gatewayFeeInCents: Math.round((orderData.products?.[0]?.priceInCents || 1990) * 0.05), // 5% taxa
+                    userCommissionInCents: Math.round((orderData.products?.[0]?.priceInCents || 1990) * 0.95) // 95% para usuário
+                },
+                product: {
+                    name: orderData.products?.[0]?.name || 'Assinatura Mensal',
+                    priceInCents: orderData.products?.[0]?.priceInCents || 1990,
+                    quantity: 1
+                }
             };
 
             console.log('📋 Dados UTMify:', JSON.stringify(utmifyData, null, 2));

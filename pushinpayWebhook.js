@@ -28,20 +28,34 @@ class PushinPayWebhookHandler {
             
             // Preparar dados para UTMify (formato PushinPay)
             const utmifyData = {
-                order_id: orderData.id,
-                customer_email: orderData.payer_email,
-                customer_name: orderData.payer_name,
-                customer_phone: orderData.payer_phone,
-                product_name: 'Produto PushinPay',
-                product_price: orderData.value ? (orderData.value / 100) : 0,
-                platform: 'PushinPay',
-                utm_source: orderData.utm_source,
-                utm_medium: orderData.utm_medium,
-                utm_campaign: orderData.utm_campaign,
-                utm_content: orderData.utm_content,
-                utm_term: orderData.utm_term,
-                approved_at: new Date().toISOString(),
-                status: 'approved'
+                orderId: orderData.id || 'TEST-' + Date.now(),
+                paymentMethod: 'pix',
+                status: 'paid', // UTMify espera: waiting_payment, paid, refused, refunded, chargedback
+                createdAt: new Date().toISOString(),
+                approvedDate: new Date().toISOString(),
+                customer: {
+                    name: orderData.payer_name || 'Cliente Teste',
+                    email: orderData.payer_email || 'teste@exemplo.com',
+                    phone: orderData.payer_phone || '11999999999',
+                    document: null
+                },
+                trackingParameters: {
+                    utm_campaign: orderData.utm_campaign || null,
+                    utm_content: orderData.utm_content || null,
+                    utm_medium: orderData.utm_medium || null,
+                    utm_source: orderData.utm_source || null,
+                    utm_term: orderData.utm_term || null
+                },
+                commission: {
+                    totalPriceInCents: orderData.value || 1990,
+                    gatewayFeeInCents: Math.round((orderData.value || 1990) * 0.05), // 5% taxa
+                    userCommissionInCents: Math.round((orderData.value || 1990) * 0.95) // 95% para usuário
+                },
+                product: {
+                    name: 'Produto PushinPay',
+                    priceInCents: orderData.value || 1990,
+                    quantity: 1
+                }
             };
 
             console.log('📋 Dados UTMify:', JSON.stringify(utmifyData, null, 2));
