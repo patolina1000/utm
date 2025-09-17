@@ -797,27 +797,6 @@ app.get('/obrigado', (req, res) => {
 // ============================
 
 
-// Rota raiz redireciona para /links (página principal) preservando UTMs
-app.get('/', (req, res) => {
-    const utmParams = new URLSearchParams();
-    
-    // Lista de parâmetros UTM para preservar
-    const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'sck', 'src', 'gclid', 'fbclid', 'ref'];
-    
-    utmKeys.forEach(key => {
-        if (req.query[key]) {
-            utmParams.append(key, req.query[key]);
-        }
-    });
-    
-    // Construir URL de redirecionamento com UTMs preservadas
-    const redirectUrl = utmParams.toString() ? `/links?${utmParams.toString()}` : '/links';
-    
-    console.log(`🔄 [Root Redirect] Redirecionando / para ${redirectUrl}`);
-    console.log(`📊 [Root Redirect] UTMs preservadas:`, Object.keys(req.query).filter(key => utmKeys.includes(key)));
-    
-    res.redirect(301, redirectUrl);
-});
 
 // Middleware para debug de arquivos estáticos (ANTES dos middlewares estáticos)
 app.use((req, res, next) => {
@@ -863,6 +842,32 @@ app.use('/redirect/images', (req, res, next) => {
 }, express.static(path.join(__dirname, 'redirect/images')));
 
 app.use(express.static(path.join(__dirname, 'public')));
+
+// ============================
+// ROTA RAIZ (DEVE VIR ANTES DO MIDDLEWARE 404)
+// ============================
+
+// Rota raiz redireciona para /links (página principal) preservando UTMs
+app.get('/', (req, res) => {
+    const utmParams = new URLSearchParams();
+    
+    // Lista de parâmetros UTM para preservar
+    const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'sck', 'src', 'gclid', 'fbclid', 'ref'];
+    
+    utmKeys.forEach(key => {
+        if (req.query[key]) {
+            utmParams.append(key, req.query[key]);
+        }
+    });
+    
+    // Construir URL de redirecionamento com UTMs preservadas
+    const redirectUrl = utmParams.toString() ? `/links?${utmParams.toString()}` : '/links';
+    
+    console.log(`🔄 [Root Redirect] Redirecionando / para ${redirectUrl}`);
+    console.log(`📊 [Root Redirect] UTMs preservadas:`, Object.keys(req.query).filter(key => utmKeys.includes(key)));
+    
+    res.redirect(301, redirectUrl);
+});
 
 // ============================
 // MIDDLEWARE DE TRATAMENTO DE ERROS
