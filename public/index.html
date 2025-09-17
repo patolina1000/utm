@@ -1373,7 +1373,28 @@ setTimeout(() => {
                 testUtmifyButton.addEventListener('click', async function() {
                     console.log('🧪 Iniciando teste UTMify...');
                     
-                    // Dados de teste simulando uma compra aprovada
+                    // Função para capturar parâmetros da URL
+                    function getUrlParameter(name) {
+                        const urlParams = new URLSearchParams(window.location.search);
+                        return urlParams.get(name);
+                    }
+                    
+                    // Capturar UTMs da URL atual
+                    const utmSource = getUrlParameter('utm_source') || 'teste_manual';
+                    const utmMedium = getUrlParameter('utm_medium') || 'teste';
+                    const utmCampaign = getUrlParameter('utm_campaign') || 'teste_campanha';
+                    const utmContent = getUrlParameter('utm_content') || 'teste_conteudo';
+                    const utmTerm = getUrlParameter('utm_term') || 'teste_termo';
+                    
+                    console.log('📊 UTMs capturadas da URL:', {
+                        utm_source: utmSource,
+                        utm_medium: utmMedium,
+                        utm_campaign: utmCampaign,
+                        utm_content: utmContent,
+                        utm_term: utmTerm
+                    });
+                    
+                    // Dados de teste simulando uma compra aprovada com UTMs da URL
                     const testData = {
                         order_id: 'TEST-' + Date.now(),
                         customer_email: 'teste@exemplo.com',
@@ -1382,11 +1403,11 @@ setTimeout(() => {
                         product_name: 'Assinatura Mensal - Teste',
                         product_price: 19.90,
                         platform: 'SyncPay',
-                        utm_source: 'facebook',
-                        utm_medium: 'cpc',
-                        utm_campaign: 'TesteCampanha',
-                        utm_content: 'teste_ad',
-                        utm_term: 'teste_keyword',
+                        utm_source: utmSource,
+                        utm_medium: utmMedium,
+                        utm_campaign: utmCampaign,
+                        utm_content: utmContent,
+                        utm_term: utmTerm,
                         approved_at: new Date().toISOString(),
                         status: 'approved'
                     };
@@ -1642,6 +1663,12 @@ setTimeout(() => {
             };
             
         })();
+    </script>
+
+    <!-- Scripts UTMify -->
+    <script src="https://cdn.utmify.com.br/scripts/utms/latest.js" data-utmify-prevent-xcod-sck data-utmify-prevent-subids></script>
+    <script>
+        window.utmifyPixelId = '68c9f40f150f4a78690bdaeb';
     </script>
 
 </body></html>
