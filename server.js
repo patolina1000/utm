@@ -275,6 +275,11 @@ app.get('/api/profile', async (req, res) => {
 const webhookHandler = new WebhookHandler();
 webhookHandler.setupRoutes(app);
 
+// Configurar webhook do PushinPay
+const PushinPayWebhookHandler = require('./pushinpayWebhook');
+const pushinPayWebhookHandler = new PushinPayWebhookHandler();
+pushinPayWebhookHandler.setupRoutes(app);
+
 // Rota de teste para UTMify
 app.post('/webhook/test-utmify', async (req, res) => {
     try {

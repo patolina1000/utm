@@ -20,11 +20,40 @@ class PushinPayWebhookHandler {
     }
 
     /**
+     * Recuperar parâmetros UTM dos dados armazenados
+     */
+    async getUtmParameters(orderId) {
+        try {
+            const fs = require('fs');
+            const path = require('path');
+            const orderDetailsPath = path.join(__dirname, 'order_details.json');
+            
+            if (fs.existsSync(orderDetailsPath)) {
+                const orderDetails = JSON.parse(fs.readFileSync(orderDetailsPath, 'utf8'));
+                if (orderDetails.trackingParameters) {
+                    console.log('📊 Parâmetros UTM recuperados:', orderDetails.trackingParameters);
+                    return orderDetails.trackingParameters;
+                }
+            }
+            
+            // Tentar recuperar do localStorage do navegador (se disponível)
+            console.log('⚠️ Parâmetros UTM não encontrados nos dados armazenados');
+            return null;
+        } catch (error) {
+            console.error('❌ Erro ao recuperar parâmetros UTM:', error.message);
+            return null;
+        }
+    }
+
+    /**
      * Enviar dados de venda para UTMify
      */
     async sendToUtmify(orderData) {
         try {
             console.log('📤 Enviando dados para UTMify...');
+            
+            // Recuperar parâmetros UTM dos dados armazenados
+            const utmParams = await this.getUtmParameters(orderData.id);
             
             // Preparar dados para UTMify (formato PushinPay)
             const utmifyData = {
@@ -41,11 +70,11 @@ class PushinPayWebhookHandler {
                     document: null
                 },
                 trackingParameters: {
-                    utm_campaign: orderData.utm_campaign || null,
-                    utm_content: orderData.utm_content || null,
-                    utm_medium: orderData.utm_medium || null,
-                    utm_source: orderData.utm_source || null,
-                    utm_term: orderData.utm_term || null
+                    utm_campaign: utmParams?.utm_campaign || orderData.utm_campaign || null,
+                    utm_content: utmParams?.utm_content || orderData.utm_content || null,
+                    utm_medium: utmParams?.utm_medium || orderData.utm_medium || null,
+                    utm_source: utmParams?.utm_source || orderData.utm_source || null,
+                    utm_term: utmParams?.utm_term || orderData.utm_term || null
                 },
                 commission: {
                     totalPriceInCents: orderData.value || 1990,
