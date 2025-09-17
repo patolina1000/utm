@@ -797,9 +797,26 @@ app.get('/obrigado', (req, res) => {
 // ============================
 
 
-// Rota raiz redireciona para /links (página principal)
+// Rota raiz redireciona para /links (página principal) preservando UTMs
 app.get('/', (req, res) => {
-    res.redirect('/links');
+    const utmParams = new URLSearchParams();
+    
+    // Lista de parâmetros UTM para preservar
+    const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'sck', 'src', 'gclid', 'fbclid', 'ref'];
+    
+    utmKeys.forEach(key => {
+        if (req.query[key]) {
+            utmParams.append(key, req.query[key]);
+        }
+    });
+    
+    // Construir URL de redirecionamento com UTMs preservadas
+    const redirectUrl = utmParams.toString() ? `/links?${utmParams.toString()}` : '/links';
+    
+    console.log(`🔄 [Root Redirect] Redirecionando / para ${redirectUrl}`);
+    console.log(`📊 [Root Redirect] UTMs preservadas:`, Object.keys(req.query).filter(key => utmKeys.includes(key)));
+    
+    res.redirect(301, redirectUrl);
 });
 
 // Middleware para debug de arquivos estáticos (ANTES dos middlewares estáticos)
@@ -864,9 +881,25 @@ app.use('*', (req, res) => {
         });
     }
     
-    // Para outras rotas, redirecionar para /links (página principal)
-    console.log(`🔄 [404 Redirect] Redirecionando ${req.path} para /links`);
-    res.redirect(301, '/links');
+    // Para outras rotas, redirecionar para /links (página principal) preservando UTMs
+    const utmParams = new URLSearchParams();
+    
+    // Lista de parâmetros UTM para preservar
+    const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'sck', 'src', 'gclid', 'fbclid', 'ref'];
+    
+    utmKeys.forEach(key => {
+        if (req.query[key]) {
+            utmParams.append(key, req.query[key]);
+        }
+    });
+    
+    // Construir URL de redirecionamento com UTMs preservadas
+    const redirectUrl = utmParams.toString() ? `/links?${utmParams.toString()}` : '/links';
+    
+    console.log(`🔄 [404 Redirect] Redirecionando ${req.path} para ${redirectUrl}`);
+    console.log(`📊 [404 Redirect] UTMs preservadas:`, Object.keys(req.query).filter(key => utmKeys.includes(key)));
+    
+    res.redirect(301, redirectUrl);
 });
 
 // Middleware para tratamento de erros globais
