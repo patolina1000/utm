@@ -798,6 +798,35 @@ app.get('/obrigado', (req, res) => {
 });
 
 // ============================
+// ROTA RAIZ (DEVE VIR ANTES DOS MIDDLEWARES ESTÁTICOS)
+// ============================
+
+// Rota raiz redireciona para /links (página principal) preservando UTMs
+app.get('/', (req, res) => {
+    const utmParams = new URLSearchParams();
+    
+    // Lista de parâmetros UTM para preservar
+    const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'sck', 'src', 'gclid', 'fbclid', 'ref'];
+    
+    utmKeys.forEach(key => {
+        if (req.query[key]) {
+            utmParams.append(key, req.query[key]);
+        }
+    });
+    
+    // Construir URL de redirecionamento com UTMs preservadas
+    const redirectUrl = utmParams.toString() ? `/links?${utmParams.toString()}` : '/links';
+    
+    // Log apenas se houver UTMs
+    const preservedUtms = Object.keys(req.query).filter(key => utmKeys.includes(key));
+    if (preservedUtms.length > 0) {
+        console.log(`🔄 [Root Redirect] / → ${redirectUrl} (UTMs: ${preservedUtms.length})`);
+    }
+    
+    res.redirect(301, redirectUrl);
+});
+
+// ============================
 // ROTAS DO FUNIL COMPLETO
 // ============================
 
@@ -847,35 +876,6 @@ app.use('/redirect/images', (req, res, next) => {
 }, express.static(path.join(__dirname, 'redirect/images')));
 
 app.use(express.static(path.join(__dirname, 'public')));
-
-// ============================
-// ROTA RAIZ (DEVE VIR ANTES DO MIDDLEWARE 404)
-// ============================
-
-// Rota raiz redireciona para /links (página principal) preservando UTMs
-app.get('/', (req, res) => {
-    const utmParams = new URLSearchParams();
-    
-    // Lista de parâmetros UTM para preservar
-    const utmKeys = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'sck', 'src', 'gclid', 'fbclid', 'ref'];
-    
-    utmKeys.forEach(key => {
-        if (req.query[key]) {
-            utmParams.append(key, req.query[key]);
-        }
-    });
-    
-    // Construir URL de redirecionamento com UTMs preservadas
-    const redirectUrl = utmParams.toString() ? `/links?${utmParams.toString()}` : '/links';
-    
-    // Log apenas se houver UTMs
-    const preservedUtms = Object.keys(req.query).filter(key => utmKeys.includes(key));
-    if (preservedUtms.length > 0) {
-        console.log(`🔄 [Root Redirect] / → ${redirectUrl} (UTMs: ${preservedUtms.length})`);
-    }
-    
-    res.redirect(301, redirectUrl);
-});
 
 // ============================
 // MIDDLEWARE DE TRATAMENTO DE ERROS
