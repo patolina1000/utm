@@ -863,8 +863,11 @@ app.get('/', (req, res) => {
     // Construir URL de redirecionamento com UTMs preservadas
     const redirectUrl = utmParams.toString() ? `/links?${utmParams.toString()}` : '/links';
     
-    console.log(`🔄 [Root Redirect] Redirecionando / para ${redirectUrl}`);
-    console.log(`📊 [Root Redirect] UTMs preservadas:`, Object.keys(req.query).filter(key => utmKeys.includes(key)));
+    // Log apenas se houver UTMs
+    const preservedUtms = Object.keys(req.query).filter(key => utmKeys.includes(key));
+    if (preservedUtms.length > 0) {
+        console.log(`🔄 [Root Redirect] / → ${redirectUrl} (UTMs: ${preservedUtms.length})`);
+    }
     
     res.redirect(301, redirectUrl);
 });
@@ -901,8 +904,11 @@ app.use('*', (req, res) => {
     // Construir URL de redirecionamento com UTMs preservadas
     const redirectUrl = utmParams.toString() ? `/links?${utmParams.toString()}` : '/links';
     
-    console.log(`🔄 [404 Redirect] Redirecionando ${req.path} para ${redirectUrl}`);
-    console.log(`📊 [404 Redirect] UTMs preservadas:`, Object.keys(req.query).filter(key => utmKeys.includes(key)));
+    // Log apenas se houver UTMs ou se for uma rota específica
+    const preservedUtms = Object.keys(req.query).filter(key => utmKeys.includes(key));
+    if (preservedUtms.length > 0 || req.path !== '/') {
+        console.log(`🔄 [404 Redirect] ${req.path} → ${redirectUrl} (UTMs: ${preservedUtms.length})`);
+    }
     
     res.redirect(301, redirectUrl);
 });
